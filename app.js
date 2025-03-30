@@ -185,22 +185,25 @@ map.on('load', () => {
                 '#ef5350'
             ],
             'circle-radius': [
-                'step',
-                ['get', 'point_count'],
-                20,
-                10,
-                30,
-                30,
-                40,
-                50,
-                50,
-                100,
-                60
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, ['step', ['get', 'point_count'], 10, 10, 15, 30, 20, 50, 25, 100, 30],
+                20, ['step', ['get', 'point_count'], 20, 10, 30, 30, 40, 50, 50, 100, 60]
             ],
-            'circle-opacity': 0.8,
+            'circle-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, 0.6,
+                20, 0.8
+            ],
             'circle-stroke-width': 1,
             'circle-stroke-color': '#fff',
-            'circle-stroke-opacity': 0.5
+            'circle-stroke-opacity': 0.5,
+            'circle-translate': [0, 0],
+            'circle-pitch-alignment': 'map',
+            'circle-pitch-scale': 'map'
         }
     });
 
@@ -212,9 +215,49 @@ map.on('load', () => {
         filter: ['!', ['has', 'point_count']],
         paint: {
             'circle-color': '#ef5350',
-            'circle-radius': 8,
+            'circle-radius': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, 4,
+                20, 8
+            ],
+            'circle-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, 0.6,
+                20, 0.8
+            ],
             'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff'
+            'circle-stroke-color': '#fff',
+            'circle-stroke-opacity': 0.5,
+            'circle-translate': [0, 0],
+            'circle-pitch-alignment': 'map',
+            'circle-pitch-scale': 'map'
+        }
+    });
+
+    // Add a glow effect layer for better visibility
+    map.addLayer({
+        id: 'glow',
+        type: 'circle',
+        source: 'fires',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+            'circle-color': '#ef5350',
+            'circle-radius': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, 6,
+                20, 12
+            ],
+            'circle-opacity': 0.2,
+            'circle-blur': 1.5,
+            'circle-translate': [0, 0],
+            'circle-pitch-alignment': 'map',
+            'circle-pitch-scale': 'map'
         }
     });
 
@@ -322,37 +365,4 @@ async function fetchFireData() {
             let popupContent = [];
             if (country) popupContent.push(`<strong>Country:</strong> ${country}`);
             if (date) popupContent.push(`<strong>Date:</strong> ${date}`);
-            if (time) popupContent.push(`<strong>Time:</strong> ${time}`);
-            if (confidence && confidence !== 'n' && confidence !== 'N') popupContent.push(`<strong>Confidence:</strong> ${confidence}%`);
-            if (satellite && satellite !== 'n' && satellite !== 'N' && satellite !== 'undefined') popupContent.push(`<strong>Satellite:</strong> ${satellite}`);
-
-            return {
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [longitude, latitude]
-                },
-                properties: {
-                    popupContent: popupContent.join('<br>')
-                }
-            };
-        }).filter(feature => feature !== null);
-
-        // Update the map source with new data
-        map.getSource('fires').setData({
-            type: 'FeatureCollection',
-            features: features
-        });
-
-        // Remove loading indicator
-        document.body.removeChild(loadingIndicator);
-
-    } catch (error) {
-        console.error('Error fetching wildfire data:', error);
-        document.body.removeChild(loadingIndicator);
-        alert('Error loading wildfire data. Please try again later.');
-    }
-}
-
-// Fetch data when the map loads
-map.on('load', fetchFireData);
+            if (time) popupContent.push(`
