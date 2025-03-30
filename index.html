@@ -1,37 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>WildCan - Home</title>
-   <link rel="stylesheet" href="styles.css">
-   <link rel="icon" href="assets/fire.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WildCan - Real-time Wildfire Monitoring</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="assets/fire.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    <meta name="description" content="WildCan - Real-time wildfire monitoring and alerts for British Columbia. Stay informed and stay safe.">
 </head>
 <body>
-   <nav class="navbar">
-       <div class="navbar-container">
-           <a href="index.html" class="navbar-logo">WildCan</a>
-           <ul class="navbar-menu">
-               <li class="navbar-item"><a href="index.html" class="navbar-link active">Home</a></li>
-               <li class="navbar-item"><a href="about.html" class="navbar-link">About Us</a></li>
-               <li class="navbar-item"><a href="alerts.html" class="navbar-link">Fire Map</a></li>
-           </ul>
-       </div>
-   </nav>
+    <!-- Loading Screen -->
+    <div class="loading">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading wildfire data...</div>
+        </div>
+    </div>
 
-   <div class="video-container">
-       <video autoplay muted loop id="background-video">
-           <source src="assets/backgroundVid.mp4" type="video/mp4">
-           Your browser does not support the video tag.
-       </video>
-       <div class="overlay-content">
-           <h1>Welcome to WildCan</h1>
-           <p>Stay informed about wildfires in British Columbia with real-time updates and alerts.</p>
-           <a href="alerts.html" class="view-map-button">View Fire Map</a>
-       </div>
-   </div>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-logo">
+                <img src="assets/fire.png" alt="WildCan Logo">
+                WildCan
+            </a>
+            <div class="navbar-right">
+                <div class="control-group">
+                    <select id="time-filter">
+                        <option value="24">Last 24 Hours</option>
+                        <option value="48">Last 48 Hours</option>
+                        <option value="72">Last 72 Hours</option>
+                    </select>
+                </div>
+                <button class="location-button" id="locationButton">
+                    <span class="icon">📍</span>
+                    Use My Location
+                </button>
+                <a href="https://uwbc.ca/campaign/wildfires/" class="donate-button">
+                    Support Wildfire Relief
+                </a>
+            </div>
+        </div>
+    </nav>
 
-   <script src="scripts.js"></script>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Map Section -->
+        <section class="map-section">
+            <div id="map"></div>
+            
+            <!-- Map Overlay Toggle Button -->
+            <div class="overlay-toggle" id="overlayToggle">
+                <span class="overlay-toggle-icon">⚙️</span>
+            </div>
+            
+            <!-- Map Overlay Controls -->
+            <div class="map-overlay" id="mapOverlay">
+                <div class="overlay-header">
+                    <h1>Wildfire Map</h1>
+                    <p>Real-time monitoring powered by NASA FIRMS satellite data</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Info Panel -->
+        <section class="info-panel" id="infoPanel">
+            <div class="panel-header" id="panelHeader">
+                <h2>Active Fires</h2>
+                <span class="fire-count" id="fireCount">0</span>
+            </div>
+            
+            <div class="fire-list" id="fireList">
+                <!-- Fire items will be dynamically added here -->
+            </div>
+            
+            <!-- Mobile Toggle Button -->
+            <button class="toggle-panel" id="togglePanel">
+                <span>📋</span>
+            </button>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script>
+        // Show the map overlay by default on desktop, hide on mobile
+        window.addEventListener('load', () => {
+            const mapOverlay = document.getElementById('mapOverlay');
+            if (window.innerWidth > 1024) {
+                mapOverlay.classList.add('active');
+            }
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Map Overlay Toggle
+        const overlayToggle = document.getElementById('overlayToggle');
+        const mapOverlay = document.getElementById('mapOverlay');
+        
+        overlayToggle.addEventListener('click', () => {
+            mapOverlay.classList.toggle('active');
+        });
+
+        // Info Panel Toggle (Mobile)
+        const togglePanel = document.getElementById('togglePanel');
+        const infoPanel = document.getElementById('infoPanel');
+        const panelHeader = document.getElementById('panelHeader');
+        
+        if (togglePanel) {
+            togglePanel.addEventListener('click', () => {
+                infoPanel.classList.toggle('active');
+            });
+        }
+        
+        if (panelHeader) {
+            panelHeader.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    infoPanel.classList.toggle('active');
+                }
+            });
+        }
+    </script>
 </body>
 </html>
 

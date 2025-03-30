@@ -3,17 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WildCan - Fire Map</title>
+    <title>WildCan - Live Fire Map</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="assets/fire.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    <meta name="description" content="View real-time wildfire locations across British Columbia on our interactive map. Stay informed about active fires in your area.">
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div class="loading"></div>
+
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="index.html" class="navbar-logo">WildCan</a>
+            <a href="index.html" class="navbar-logo">
+                <img src="assets/fire.png" alt="WildCan Logo">
+                WildCan
+            </a>
             <ul class="navbar-menu">
                 <li class="navbar-item"><a href="index.html" class="navbar-link">Home</a></li>
                 <li class="navbar-item"><a href="about.html" class="navbar-link">About Us</a></li>
@@ -24,14 +34,73 @@
 
     <!-- Main Content -->
     <div class="center-content">
-        <h1>Real-time Wildfire Map</h1>
+        <h1>Live Wildfire Map</h1>
+        <p class="map-description">Track active wildfires across British Columbia in real-time. Click on any fire point for detailed information.</p>
+        
+        <!-- Map Controls -->
+        <div class="map-controls">
+            <div class="control-group">
+                <label for="confidence-filter">Confidence Level:</label>
+                <select id="confidence-filter">
+                    <option value="all">All Fires</option>
+                    <option value="high">High Confidence</option>
+                    <option value="medium">Medium Confidence</option>
+                    <option value="low">Low Confidence</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="time-filter">Time Range:</label>
+                <select id="time-filter">
+                    <option value="24">Last 24 Hours</option>
+                    <option value="48">Last 48 Hours</option>
+                    <option value="72">Last 72 Hours</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Map Container -->
         <div id="map"></div>
+
+        <!-- Legend -->
+        <div class="map-legend">
+            <h3>Fire Intensity</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span class="legend-color high"></span>
+                    <span>High Intensity</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color medium"></span>
+                    <span>Medium Intensity</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color low"></span>
+                    <span>Low Intensity</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Donate Button -->
-    <a href="https://uwbc.ca/campaign/wildfires/" class="donate-button">Donate</a>
+    <a href="https://uwbc.ca/campaign/wildfires/" class="donate-button">Support Wildfire Relief</a>
 
-    <!-- JavaScript -->
+    <!-- Scripts -->
     <script src="app.js"></script>
+    <script>
+        // Remove loading screen when page is loaded
+        window.addEventListener('load', () => {
+            document.querySelector('.loading').style.display = 'none';
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
 </body>
 </html>

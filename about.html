@@ -3,36 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us</title>
+    <title>WildCan - About Us</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="assets/fire.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="description" content="Learn about WildCan's mission to protect British Columbia communities from wildfires through real-time monitoring and alerts.">
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div class="loading"></div>
+
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="index.html" class="navbar-logo">WildCan</a>
+            <a href="index.html" class="navbar-logo">
+                <img src="assets/fire.png" alt="WildCan Logo">
+                WildCan
+            </a>
             <ul class="navbar-menu">
                 <li class="navbar-item"><a href="index.html" class="navbar-link">Home</a></li>
                 <li class="navbar-item"><a href="about.html" class="navbar-link active">About Us</a></li>
-                <li class="navbar-item"><a href="alerts.html" class="navbar-link">Get Alerts</a></li>
+                <li class="navbar-item"><a href="alerts.html" class="navbar-link">Fire Map</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Background Video -->
+    <!-- Hero Section -->
     <div class="video-container">
         <video autoplay muted loop id="background-video">
             <source src="assets/backgroundVid.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
         <div class="overlay-content">
-            <h1>About WildCan</h1>
-            <p>WildCan is Canada's first wildfire system that utilizes wildfire data and notifies users when to evacuate in case of a nearby wildfire. We aim to provide timely and accurate alerts to keep communities safe.</p>
+            <h1>Our Mission</h1>
+            <p>Protecting British Columbia communities through innovative wildfire monitoring and early warning systems.</p>
         </div>
-        <a href="https://uwbc.ca/campaign/wildfires/" class="donate-button">Donate</a>
     </div>
 
-    
+    <!-- About Content -->
+    <section class="about-content">
+        <div class="about-container">
+            <div class="about-section">
+                <h2>Who We Are</h2>
+                <p>WildCan is a pioneering initiative developed by a team of passionate first-year students at the University of British Columbia. Our goal is to revolutionize how communities respond to wildfires by providing real-time monitoring and instant alerts.</p>
+            </div>
+
+            <div class="about-section">
+                <h2>Our Technology</h2>
+                <p>We leverage NASA's FIRMS satellite system to track wildfires across British Columbia in real-time. Our advanced algorithms analyze fire patterns and calculate potential impact zones, ensuring communities receive timely warnings when fires are detected nearby.</p>
+            </div>
+
+            <div class="about-section">
+                <h2>Our Impact</h2>
+                <p>By providing instant notifications and detailed fire information, we help communities make informed decisions during wildfire events. Our system has the potential to save lives and protect property by giving residents crucial time to evacuate when necessary.</p>
+            </div>
+
+            <div class="about-section">
+                <h2>Get Involved</h2>
+                <p>Support our mission to protect British Columbia communities from wildfires. Your contribution helps us maintain and improve our monitoring systems, ensuring more communities can benefit from early wildfire detection.</p>
+                <a href="https://uwbc.ca/campaign/wildfires/" class="view-map-button">Support Wildfire Relief</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donate Button -->
+    <a href="https://uwbc.ca/campaign/wildfires/" class="donate-button">Support Wildfire Relief</a>
+
+    <!-- Scripts -->
+    <script src="scripts.js"></script>
+    <script>
+        // Remove loading screen when page is loaded
+        window.addEventListener('load', () => {
+            document.querySelector('.loading').style.display = 'none';
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
 </body>
 </html>
