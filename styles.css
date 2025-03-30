@@ -121,24 +121,44 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    padding: 15px 30px; /* Increase padding for a bigger button */
+    padding: 15px 30px;
     background-color: #da553e;
     color: white;
     text-decoration: none;
     font-weight: bold;
-    font-size: 1.2rem; 
-    border-radius: 10px; 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+    font-size: 1.2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s ease, transform 0.2s ease;
     text-align: center;
-    z-index: 1000; 
+    z-index: 1000;
 }
 
 .donate-button:hover {
     background-color: #d8371b;
-    transform: scale(1.1); /* Slightly enlarge on hover */
+    transform: scale(1.1);
 }
 
+/* New class for the home page View Fire Map button */
+.view-map-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 15px 30px;
+    background-color: #da553e;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
+}
+
+.view-map-button:hover {
+    background-color: #d8371b;
+    transform: scale(1.1);
+}
 
 .center-content {
     display: flex;

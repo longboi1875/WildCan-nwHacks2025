@@ -1,3 +1,2 @@
 requests
-pymongo
-csv
+pymongo==4.11.3

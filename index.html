@@ -3,171 +3,35 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Home</title>
+   <title>WildCan - Home</title>
    <link rel="stylesheet" href="styles.css">
-   <link rel="icon" href="assets/fire.png" type="image/png">
-   <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
    <link rel="icon" href="assets/fire.png" type="image/png">
 </head>
 <body>
-
-
    <nav class="navbar">
        <div class="navbar-container">
            <a href="index.html" class="navbar-logo">WildCan</a>
            <ul class="navbar-menu">
-               <li class="navbar-item"><a href="index.html" class="navbar-link">Home</a></li>
+               <li class="navbar-item"><a href="index.html" class="navbar-link active">Home</a></li>
                <li class="navbar-item"><a href="about.html" class="navbar-link">About Us</a></li>
-               <li class="navbar-item"><a href="alerts.html" class="navbar-link">Get Alerts</a></li>
+               <li class="navbar-item"><a href="alerts.html" class="navbar-link">Fire Map</a></li>
            </ul>
        </div>
    </nav>
 
-
-
-
-   <div class="heading-container">
-       <h1>Active Wildfires in British Columbia</h1>
-       <div id="map"></div>
+   <div class="video-container">
+       <video autoplay muted loop id="background-video">
+           <source src="assets/backgroundVid.mp4" type="video/mp4">
+           Your browser does not support the video tag.
+       </video>
+       <div class="overlay-content">
+           <h1>Welcome to WildCan</h1>
+           <p>Stay informed about wildfires in British Columbia with real-time updates and alerts.</p>
+           <a href="alerts.html" class="view-map-button">View Fire Map</a>
+       </div>
    </div>
 
-
-   <script src="scripts/tabs.js"></script>
-   <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
-   <script>
-       mapboxgl.accessToken = 'pk.eyJ1IjoicnNhbmdleSIsImEiOiJjbTYybnd1Z2IxMjR3MmxvdThzMHRxejBjIn0.FHJ1aQP5xd0N0t5rg9F8oQ';
-
-
-       const map = new mapboxgl.Map({
-           container: 'map',
-           style: 'mapbox://styles/mapbox/streets-v11',
-           center: [-127.6476, 53.7267],
-           zoom: 4.1
-       });
-
-
-       map.addControl(new mapboxgl.NavigationControl());
-
-
-       async function fetchFireData() {
-           try {
-               console.log('Fetching wildfire data from API...');
-               const response = await fetch('http://127.0.0.1:5000/api/fires');
-               const coordinates = await response.json();
-
-
-               console.log('Data fetched from API:', coordinates);
-
-
-               if (!Array.isArray(coordinates) || !coordinates.every(coord => Array.isArray(coord) && coord.length === 2)) {
-                   console.error('Invalid data format received from API. Expected [[longitude, latitude], ...]');
-                   return;
-               }
-
-
-               console.log('Valid wildfire coordinates:', coordinates);
-
-
-               coordinates.forEach(([longitude, latitude]) => {
-                   console.log(`Adding marker at Longitude: ${longitude}, Latitude: ${latitude}`);
-
-
-
-
-                   new mapboxgl.Marker({ color: 'red' })
-                       .setLngLat([longitude, latitude])
-                       .addTo(map);
-               });
-
-
-
-
-               const size = 100;
-
-
-               const pulsingDot = {
-                   width: size,
-                   height: size,
-                   data: new Uint8Array(size * size * 4),
-                   onAdd: function () {
-                       const canvas = document.createElement('canvas');
-                       canvas.width = this.width;
-                       canvas.height = this.height;
-                       this.context = canvas.getContext('2d');
-                   },
-                   render: function () {
-                       const context = this.context;
-                       const radius = size / 2;
-                       const time = (performance.now() % 1000) / 1000;
-
-
-                       context.clearRect(0, 0, this.width, this.height);
-
-
-          
-                       context.beginPath();
-                       context.arc(radius, radius, radius * time, 0, Math.PI * 2);
-                       context.fillStyle = `rgba(255, 100, 100, ${(1 - time) * 0.5})`;
-                       context.fill();
-
-
-      
-                       context.beginPath();
-                       context.arc(radius, radius, radius * 0.4, 0, Math.PI * 2);
-                       context.fillStyle = 'rgba(255, 0, 0, 0.8)';
-                       context.fill();
-
-
-                       this.data = context.getImageData(0, 0, this.width, this.height).data;
-                       map.triggerRepaint();
-
-
-                       return true;
-                   }
-               };
-
-
-               map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
-
-
-               map.addSource('wildfires', {
-                   type: 'geojson',
-                   data: {
-                       type: 'FeatureCollection',
-                       features: coordinates.map(coord => ({
-                           type: 'Feature',
-                           geometry: { type: 'Point', coordinates: coord }
-                       }))
-                   }
-               });
-
-
-               map.addLayer({
-                   id: 'wildfire-layer',
-                   type: 'symbol',
-                   source: 'wildfires',
-                   layout: {
-                       'icon-image': 'pulsing-dot',
-                       'icon-allow-overlap': true
-                   }
-               });
-
-
-           } catch (error) {
-               console.error('Error fetching wildfire data:', error);
-           }
-       }
-
-
-
-
-       map.on('load', fetchFireData);
-
-
-  </script>
-   <a href="https://uwbc.ca/campaign/wildfires/" class="donate-button">Donate</a>
-
-
+   <script src="scripts.js"></script>
 </body>
 </html>
 

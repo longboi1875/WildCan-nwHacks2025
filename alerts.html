@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Location and Phone</title>
+    <title>WildCan - Fire Map</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="assets/fire.png" type="image/png">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -15,106 +17,21 @@
             <ul class="navbar-menu">
                 <li class="navbar-item"><a href="index.html" class="navbar-link">Home</a></li>
                 <li class="navbar-item"><a href="about.html" class="navbar-link">About Us</a></li>
-                <li class="navbar-item"><a href="alerts.html" class="navbar-link">Get Alerts</a></li>
+                <li class="navbar-item"><a href="alerts.html" class="navbar-link active">Fire Map</a></li>
             </ul>
         </div>
     </nav>
 
     <!-- Main Content -->
     <div class="center-content">
-        <h1>Enter your phone number and location to find nearby wildfires and set up personalized alerts</h1>
-        <div class="user-box">
-            <form id="user-form">
-                <label for="phone">Phone Number:</label>
-                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
-                <button type="button" id="get-location">Get Location</button>
-                <input type="submit" id = "submit-button" value="Submit">
-            </form>
-            <p id="output"></p>
-        </div>
+        <h1>Real-time Wildfire Map</h1>
+        <div id="map"></div>
     </div>
 
     <!-- Donate Button -->
     <a href="https://uwbc.ca/campaign/wildfires/" class="donate-button">Donate</a>
 
     <!-- JavaScript -->
-    <script>
-        const locationButton = document.getElementById('get-location');
-        const form = document.getElementById('user-form');
-        const output = document.getElementById('output');
-
-        let userLocation = null;
-
-        locationButton.addEventListener('click', () => {
-            if (!navigator.geolocation) {
-                output.textContent = "Geolocation is not supported by your browser.";
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    userLocation = {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    };
-                },
-                (error) => {
-                    switch (error.code) {
-                        case error.PERMISSION_DENIED:
-                            output.textContent = "Permission denied. Please allow location access.";
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            output.textContent = "Location unavailable.";
-                            break;
-                        case error.TIMEOUT:
-                            output.textContent = "Location request timed out.";
-                            break;
-                        default:
-                            output.textContent = "An unknown error occurred.";
-                            break;
-                    }
-                }
-            );
-        });
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const phoneNumber = document.getElementById('phone').value;
-
-            if (!userLocation) {
-                output.textContent = "Please get your location before submitting.";
-                return;
-            }
-
-            const userData = {
-                phoneNumber: phoneNumber,
-                location: userLocation,
-            };
-
-            console.log('User Data:', userData);
-
-            fetch('http://localhost:5000/add-user-data', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userData),
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        output.textContent = "Data submitted successfully!";
-                    } else {
-                        output.textContent = "Error submitting data.";
-                    }
-                    return response.json();
-                })
-                .then((data) => console.log("Server Response:", data))
-                .catch((error) => {
-                    console.error("Error:", error);
-                    output.textContent = "An error occurred while submitting data.";
-                });
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>

@@ -29,6 +29,10 @@ def add_user_data():
         app.logger.debug(f"Request JSON: {data}")
 
         # Validate the input data
+        if data is None:
+            app.logger.error("No JSON data received in request.")
+            return jsonify({'error': "No JSON data received."}), 400
+
         phone = data.get('phoneNumber')
         location = data.get('location')
 
