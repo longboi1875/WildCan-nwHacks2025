@@ -12,7 +12,7 @@ const map = new mapboxgl.Map({
     projection: 'globe',
     center: [0, 20], // Center on a global view
     zoom: 2, // Zoom level for global view
-    maxBounds: [[-180, -90], [180, 90]], // Restrict panning to valid coordinates
+    worldCopyJump: true, // Allow continuous panning around the globe
     globe: {
         atmosphereColor: '#000000',
         atmosphereAltitude: 0.1
@@ -341,16 +341,8 @@ async function fetchFireData() {
             console.log('Sample fire data:', uniqueFires[0]);
         }
 
-        // Limit the number of fires to prevent performance issues
-        const maxFires = 1000;
-        let limitedFires = uniqueFires;
-        if (uniqueFires.length > maxFires) {
-            console.log(`Limiting fires to ${maxFires} for better performance`);
-            limitedFires = uniqueFires.slice(0, maxFires);
-        }
-
         // Convert fires to GeoJSON features
-        const features = limitedFires.map(fire => {
+        const features = uniqueFires.map(fire => {
             const latitude = parseFloat(fire.latitude);
             const longitude = parseFloat(fire.longitude);
             const confidence = fire.confidence;
@@ -365,4 +357,37 @@ async function fetchFireData() {
             let popupContent = [];
             if (country) popupContent.push(`<strong>Country:</strong> ${country}`);
             if (date) popupContent.push(`<strong>Date:</strong> ${date}`);
-            if (time) popupContent.push(`
+            if (time) popupContent.push(`<strong>Time:</strong> ${time}`);
+            if (confidence && confidence !== 'n' && confidence !== 'N') popupContent.push(`<strong>Confidence:</strong> ${confidence}%`);
+            if (satellite && satellite !== 'n' && satellite !== 'N' && satellite !== 'undefined') popupContent.push(`<strong>Satellite:</strong> ${satellite}`);
+
+            return {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [longitude, latitude]
+                },
+                properties: {
+                    popupContent: popupContent.join('<br>')
+                }
+            };
+        }).filter(feature => feature !== null);
+
+        // Update the map source with new data
+        map.getSource('fires').setData({
+            type: 'FeatureCollection',
+            features: features
+        });
+
+        // Remove loading indicator
+        document.body.removeChild(loadingIndicator);
+
+    } catch (error) {
+        console.error('Error fetching wildfire data:', error);
+        document.body.removeChild(loadingIndicator);
+        alert('Error loading wildfire data. Please try again later.');
+    }
+}
+
+// Fetch data when the map loads
+map.on('load', fetchFireData);
