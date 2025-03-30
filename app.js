@@ -15,7 +15,7 @@ const map = new mapboxgl.Map({
     worldCopyJump: true, // Allow continuous panning around the globe
     globe: {
         atmosphereColor: '#000000',
-        atmosphereAltitude: 0.1
+        atmosphereAltitude: 0
     }
 });
 
@@ -139,17 +139,15 @@ async function fetchGlobalData() {
 
 // Add atmosphere effect when the map loads
 map.on('load', () => {
-    // Add atmosphere effect
+    // Disable all atmosphere and lighting effects
     map.setFog({
-        'horizon-blend': 0.02,
+        'horizon-blend': 0,
         'star-color': [0, 0, 0],
         'high-color': '#000000',
         'space-color': '#000000',
         'horizon-color': '#000000',
         'atmosphere-color': '#000000',
-        'atmosphere-horizon-blend': 0.2,
-        'atmosphere-sun': [0.0, 90.0],
-        'atmosphere-sun-intensity': 15
+        'atmosphere-horizon-blend': 0
     });
 
     // Add the source for clustered points
@@ -160,85 +158,11 @@ map.on('load', () => {
             features: []
         },
         cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 50
+        clusterMaxZoom: 8,
+        clusterRadius: 30
     });
 
-    // Add the cluster layer
-    map.addLayer({
-        id: 'clusters',
-        type: 'circle',
-        source: 'fires',
-        filter: ['has', 'point_count'],
-        paint: {
-            'circle-color': [
-                'step',
-                ['get', 'point_count'],
-                '#ffebee',
-                10,
-                '#ffcdd2',
-                30,
-                '#ef9a9a',
-                50,
-                '#e57373',
-                100,
-                '#ef5350'
-            ],
-            'circle-radius': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                0, ['step', ['get', 'point_count'], 10, 10, 15, 30, 20, 50, 25, 100, 30],
-                20, ['step', ['get', 'point_count'], 20, 10, 30, 30, 40, 50, 50, 100, 60]
-            ],
-            'circle-opacity': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                0, 0.6,
-                20, 0.8
-            ],
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff',
-            'circle-stroke-opacity': 0.5,
-            'circle-translate': [0, 0],
-            'circle-pitch-alignment': 'map',
-            'circle-pitch-scale': 'map'
-        }
-    });
-
-    // Add the unclustered point layer
-    map.addLayer({
-        id: 'unclustered-point',
-        type: 'circle',
-        source: 'fires',
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-            'circle-color': '#ef5350',
-            'circle-radius': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                0, 4,
-                20, 8
-            ],
-            'circle-opacity': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                0, 0.6,
-                20, 0.8
-            ],
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff',
-            'circle-stroke-opacity': 0.5,
-            'circle-translate': [0, 0],
-            'circle-pitch-alignment': 'map',
-            'circle-pitch-scale': 'map'
-        }
-    });
-
-    // Add a glow effect layer for better visibility
+    // Add a glow effect layer for better visibility (bottom layer)
     map.addLayer({
         id: 'glow',
         type: 'circle',
@@ -250,14 +174,104 @@ map.on('load', () => {
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                0, 6,
-                20, 12
+                0, 8,
+                10, 14
             ],
-            'circle-opacity': 0.2,
-            'circle-blur': 1.5,
+            'circle-opacity': 0.3,
+            'circle-blur': 2,
             'circle-translate': [0, 0],
             'circle-pitch-alignment': 'map',
             'circle-pitch-scale': 'map'
+        }
+    });
+
+    // Add the unclustered point layer (middle layer)
+    map.addLayer({
+        id: 'unclustered-point',
+        type: 'circle',
+        source: 'fires',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+            'circle-color': '#ef5350',
+            'circle-radius': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, 6,
+                10, 10
+            ],
+            'circle-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, 0.7,
+                10, 0.9
+            ],
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#fff',
+            'circle-stroke-opacity': 0.8,
+            'circle-translate': [0, 0],
+            'circle-pitch-alignment': 'map',
+            'circle-pitch-scale': 'map'
+        }
+    });
+
+    // Add the cluster layer (top layer)
+    map.addLayer({
+        id: 'clusters',
+        type: 'circle',
+        source: 'fires',
+        filter: ['has', 'point_count'],
+        paint: {
+            'circle-color': [
+                'step',
+                ['get', 'point_count'],
+                '#ffebee',
+                5,
+                '#ffcdd2',
+                10,
+                '#ef9a9a',
+                20,
+                '#e57373',
+                50,
+                '#ef5350'
+            ],
+            'circle-radius': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, ['step', ['get', 'point_count'], 15, 5, 20, 10, 25, 20, 30, 40, 35],
+                10, ['step', ['get', 'point_count'], 25, 5, 30, 10, 35, 20, 40, 40, 45]
+            ],
+            'circle-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, 0.7,
+                10, 0.9
+            ],
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#fff',
+            'circle-stroke-opacity': 0.8,
+            'circle-translate': [0, 0],
+            'circle-pitch-alignment': 'map',
+            'circle-pitch-scale': 'map'
+        }
+    });
+
+    // Add cluster count labels
+    map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'fires',
+        filter: ['has', 'point_count'],
+        layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12
+        },
+        paint: {
+            'text-color': '#ffffff'
         }
     });
 
@@ -271,7 +285,7 @@ map.on('load', () => {
                 if (err) return;
                 map.easeTo({
                     center: features[0].geometry.coordinates,
-                    zoom: zoom
+                    zoom: Math.min(zoom, 8)
                 });
             }
         );
@@ -289,7 +303,7 @@ map.on('load', () => {
 
         map.flyTo({
             center: coordinates,
-            zoom: 10
+            zoom: 6
         });
     });
 
@@ -357,7 +371,7 @@ async function fetchFireData() {
             let popupContent = [];
             if (country) popupContent.push(`<strong>Country:</strong> ${country}`);
             if (date) popupContent.push(`<strong>Date:</strong> ${date}`);
-            if (time) popupContent.push(`<strong>Time:</strong> ${time}`);
+            if (time) popupContent.push(`<strong>Last Updated:</strong> ${time}`);
             if (confidence && confidence !== 'n' && confidence !== 'N') popupContent.push(`<strong>Confidence:</strong> ${confidence}%`);
             if (satellite && satellite !== 'n' && satellite !== 'N' && satellite !== 'undefined') popupContent.push(`<strong>Satellite:</strong> ${satellite}`);
 
