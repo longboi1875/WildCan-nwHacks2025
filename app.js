@@ -488,7 +488,7 @@ map.on('load', () => {
 });
 
 // Function to check if two coordinates are close enough to be considered the same fire
-function areCoordinatesClose(coord1, coord2, threshold = 0.001) {
+function areCoordinatesClose(coord1, coord2, threshold = 0.01) {
     const [lng1, lat1] = coord1;
     const [lng2, lat2] = coord2;
     return Math.abs(lng1 - lng2) < threshold && Math.abs(lat1 - lat2) < threshold;
@@ -498,7 +498,6 @@ function areCoordinatesClose(coord1, coord2, threshold = 0.001) {
 function deduplicateFires(fires) {
     const uniqueFires = [];
     const processedCoords = new Set();
-    const processedDates = new Set();
 
     // First, sort fires by date (most recent first)
     fires.sort((a, b) => {
@@ -509,10 +508,9 @@ function deduplicateFires(fires) {
     fires.forEach(fire => {
         const coords = [parseFloat(fire.longitude), parseFloat(fire.latitude)];
         const coordKey = coords.join(',');
-        const dateKey = fire.acq_date;
         
-        // Skip if we've already processed these exact coordinates and date
-        if (processedCoords.has(coordKey) && processedDates.has(dateKey)) {
+        // Skip if we've already processed these exact coordinates
+        if (processedCoords.has(coordKey)) {
             return;
         }
 
@@ -525,7 +523,6 @@ function deduplicateFires(fires) {
         if (!isDuplicate) {
             uniqueFires.push(fire);
             processedCoords.add(coordKey);
-            processedDates.add(dateKey);
         }
     });
 
@@ -596,7 +593,9 @@ async function fetchFireData() {
                     fireDate.setHours(Math.floor(totalMinutes / 60), totalMinutes % 60);
                 }
                 
-                if (fireDate >= cutoffDate) {
+                // Add a 1-hour buffer to the cutoff date to ensure we don't miss any fires
+                const bufferCutoffDate = new Date(cutoffDate.getTime() - 60 * 60 * 1000);
+                if (fireDate >= bufferCutoffDate) {
                     uniqueFiresMap.set(key, fire);
                 }
             }
@@ -616,7 +615,8 @@ async function fetchFireData() {
             const longitude = parseFloat(fire.longitude);
             const country = fire.country_id;
             
-            if (!country || country === 'Unknown Location' || isNaN(latitude) || isNaN(longitude)) {
+            // Only filter out fires with invalid coordinates
+            if (isNaN(latitude) || isNaN(longitude)) {
                 return null;
             }
             
@@ -636,7 +636,7 @@ async function fetchFireData() {
                 },
                 properties: {
                     popupContent,
-                    country,
+                    country: country || 'Unknown Location',
                     date: fire.acq_date,
                     time: formatTime(fire.acq_time),
                     confidence: fire.confidence
@@ -650,11 +650,10 @@ async function fetchFireData() {
             features
         });
         
-        // Update the map source filter
+        // Update the map source filter to only exclude invalid coordinates
         map.setFilter('unclustered-point', [
             'all',
-            ['!', ['has', 'point_count']],
-            ['!=', ['get', 'country'], 'Unknown Location']
+            ['!', ['has', 'point_count']]
         ]);
         
         // Update the fire list
