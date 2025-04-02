@@ -39,14 +39,144 @@ function getTodayDate() {
 function formatTime(timeStr) {
     if (!timeStr || timeStr === 'undefined' || timeStr === 'n' || timeStr === 'N') return null;
     
-    const totalMinutes = parseInt(timeStr);
+        const totalMinutes = parseInt(timeStr);
     if (isNaN(totalMinutes)) return null;
-    
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    
+        
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        
     // Use template literals and direct string concatenation for better performance
     return `${hours % 12 || 12}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`;
+}
+
+// Country code to name mapping
+const countryCodeToName = {
+    'CAN': 'Canada',
+    'USA': 'United States',
+    'MEX': 'Mexico',
+    'BRA': 'Brazil',
+    'ARG': 'Argentina',
+    'AUS': 'Australia',
+    'RUS': 'Russia',
+    'CHN': 'China',
+    'IND': 'India',
+    'IDN': 'Indonesia',
+    'MYS': 'Malaysia',
+    'THA': 'Thailand',
+    'ZAF': 'South Africa',
+    'COD': 'Democratic Republic of the Congo',
+    'AGO': 'Angola',
+    'ZMB': 'Zambia',
+    'TZA': 'Tanzania',
+    'MOZ': 'Mozambique',
+    'ZWE': 'Zimbabwe',
+    'BWA': 'Botswana',
+    'NAM': 'Namibia',
+    'SWZ': 'Eswatini',
+    'LSO': 'Lesotho',
+    'MWI': 'Malawi',
+    'UGA': 'Uganda',
+    'KEN': 'Kenya',
+    'ETH': 'Ethiopia',
+    'SOM': 'Somalia',
+    'SDN': 'Sudan',
+    'SSD': 'South Sudan',
+    'CAF': 'Central African Republic',
+    'CMR': 'Cameroon',
+    'GAB': 'Gabon',
+    'COG': 'Republic of the Congo',
+    'GNQ': 'Equatorial Guinea',
+    'GIN': 'Guinea',
+    'SLE': 'Sierra Leone',
+    'LBR': 'Liberia',
+    'CIV': 'Ivory Coast',
+    'GHA': 'Ghana',
+    'TGO': 'Togo',
+    'BEN': 'Benin',
+    'NGA': 'Nigeria',
+    'NER': 'Niger',
+    'TCD': 'Chad',
+    'MLI': 'Mali',
+    'BFA': 'Burkina Faso',
+    'SEN': 'Senegal',
+    'GMB': 'Gambia',
+    'GNB': 'Guinea-Bissau',
+    'MRT': 'Mauritania',
+    'DZA': 'Algeria',
+    'TUN': 'Tunisia',
+    'LBY': 'Libya',
+    'EGY': 'Egypt',
+    'MAR': 'Morocco',
+    'ESH': 'Western Sahara',
+    'CPV': 'Cape Verde',
+    'STP': 'São Tomé and Príncipe',
+    'MDG': 'Madagascar',
+    'COM': 'Comoros',
+    'MUS': 'Mauritius',
+    'SYC': 'Seychelles',
+    'DJI': 'Djibouti',
+    'ERI': 'Eritrea',
+    'GAB': 'Gabon',
+    'GNQ': 'Equatorial Guinea',
+    'GIN': 'Guinea',
+    'SLE': 'Sierra Leone',
+    'LBR': 'Liberia',
+    'CIV': 'Ivory Coast',
+    'GHA': 'Ghana',
+    'TGO': 'Togo',
+    'BEN': 'Benin',
+    'NGA': 'Nigeria',
+    'NER': 'Niger',
+    'TCD': 'Chad',
+    'MLI': 'Mali',
+    'BFA': 'Burkina Faso',
+    'SEN': 'Senegal',
+    'GMB': 'Gambia',
+    'GNB': 'Guinea-Bissau',
+    'MRT': 'Mauritania',
+    'DZA': 'Algeria',
+    'TUN': 'Tunisia',
+    'LBY': 'Libya',
+    'EGY': 'Egypt',
+    'MAR': 'Morocco',
+    'ESH': 'Western Sahara',
+    'CPV': 'Cape Verde',
+    'STP': 'São Tomé and Príncipe',
+    'MDG': 'Madagascar',
+    'COM': 'Comoros',
+    'MUS': 'Mauritius',
+    'SYC': 'Seychelles',
+    'DJI': 'Djibouti',
+    'ERI': 'Eritrea'
+};
+
+// Function to process fire data
+function processFireData(fires) {
+    return fires.map(fire => {
+        const latitude = parseFloat(fire.latitude);
+        const longitude = parseFloat(fire.longitude);
+        
+        if (isNaN(latitude) || isNaN(longitude)) {
+            return {
+                ...fire,
+                locationName: 'Unknown Location'
+            };
+        }
+        
+        // Get country name from the mapping
+        const countryCode = fire.country_id || '';
+        const countryName = countryCodeToName[countryCode] || 'Unknown Country';
+        
+        // Build location string
+        const parts = [];
+        if (fire.province) parts.push(fire.province);
+        parts.push(countryName);
+        
+        return {
+            ...fire,
+            locationName: parts.join(', ')
+        };
+    });
 }
 
 // Function to fetch data for a specific country using multiple API keys
@@ -127,8 +257,8 @@ function parseCSVData(data) {
         const row = rows[i].trim();
         if (!row) continue;
         
-        const values = row.split(',');
-        const fire = {};
+            const values = row.split(',');
+            const fire = {};
         
         // Use a single loop to process headers and values
         for (let j = 0; j < headers.length; j++) {
@@ -572,8 +702,10 @@ async function fetchFireData() {
         // Combine country-specific and global data
         allFires = allFires.concat(globalFires);
         
+        // After getting allFires, process them with the simpler method
         updateLoadingText('Processing wildfire data...');
-
+        const processedFires = processFireData(allFires);
+        
         // Get the time filter value
         const timeFilter = parseInt(document.getElementById('time-filter').value);
         const cutoffDate = new Date(Date.now() - timeFilter * 60 * 60 * 1000);
@@ -582,7 +714,7 @@ async function fetchFireData() {
         const uniqueFiresMap = new Map();
         
         // Process fires in a single pass
-        allFires.forEach(fire => {
+        processedFires.forEach(fire => {
             if (!fire.acq_date) return;
             
             const key = `${fire.latitude},${fire.longitude},${fire.acq_date},${fire.acq_time}`;
@@ -593,7 +725,6 @@ async function fetchFireData() {
                     fireDate.setHours(Math.floor(totalMinutes / 60), totalMinutes % 60);
                 }
                 
-                // Add a 1-hour buffer to the cutoff date to ensure we don't miss any fires
                 const bufferCutoffDate = new Date(cutoffDate.getTime() - 60 * 60 * 1000);
                 if (fireDate >= bufferCutoffDate) {
                     uniqueFiresMap.set(key, fire);
@@ -608,26 +739,24 @@ async function fetchFireData() {
         
         // Update the fire count in the UI
         document.getElementById('fireCount').textContent = deduplicatedFires.length;
-        
+
         // Convert fires to GeoJSON features
         const features = deduplicatedFires.map(fire => {
             const latitude = parseFloat(fire.latitude);
             const longitude = parseFloat(fire.longitude);
-            const country = fire.country_id;
             
-            // Only filter out fires with invalid coordinates
             if (isNaN(latitude) || isNaN(longitude)) {
                 return null;
             }
             
             const popupContent = [
-                country && `<strong>Country:</strong> ${country}`,
+                `<strong>Location:</strong> ${fire.locationName}`,
                 fire.acq_date && `<strong>Date:</strong> ${fire.acq_date}`,
                 fire.acq_time && `<strong>Last Updated:</strong> ${formatTime(fire.acq_time)}`,
                 fire.confidence && fire.confidence !== 'n' && fire.confidence !== 'N' && 
                     `<strong>Confidence:</strong> ${fire.confidence}%`
             ].filter(Boolean).join('<br>');
-            
+
             return {
                 type: 'Feature',
                 geometry: {
@@ -636,7 +765,7 @@ async function fetchFireData() {
                 },
                 properties: {
                     popupContent,
-                    country: country || 'Unknown Location',
+                    locationName: fire.locationName,
                     date: fire.acq_date,
                     time: formatTime(fire.acq_time),
                     confidence: fire.confidence
@@ -658,7 +787,7 @@ async function fetchFireData() {
         
         // Update the fire list
         updateFireList();
-        
+
     } catch (error) {
         console.error('Error fetching wildfire data:', error);
         showLoadingError('Error loading wildfire data. Please try again later.');
@@ -736,7 +865,6 @@ locationButton.addEventListener('click', () => {
 function updateFireList() {
     const bounds = map.getBounds();
     const fireList = document.getElementById('fireList');
-    const timeFilter = parseInt(document.getElementById('time-filter').value);
     
     // Get all features from the fires source
     const features = map.querySourceFeatures('fires', {
@@ -745,11 +873,7 @@ function updateFireList() {
     
     // Filter features within current map bounds and exclude clusters
     const visibleFires = features.filter(feature => {
-        // Skip clusters
-        if (feature.properties.cluster) {
-            return false;
-        }
-        
+        if (feature.properties.cluster) return false;
         const [lng, lat] = feature.geometry.coordinates;
         return lng >= bounds.getWest() && 
                lng <= bounds.getEast() && 
@@ -757,25 +881,10 @@ function updateFireList() {
                lat <= bounds.getNorth();
     });
     
-    // Deduplicate fires based on coordinates
-    const uniqueFires = [];
-    const processedCoords = new Set();
-    
-    visibleFires.forEach(fire => {
-        const coords = fire.geometry.coordinates.join(',');
-        if (!processedCoords.has(coords)) {
-            uniqueFires.push(fire);
-            processedCoords.add(coords);
-        }
-    });
-    
-    // Update fire count with unique fires
-    document.getElementById('fireCount').textContent = uniqueFires.length;
-    
     // Clear current list
     fireList.innerHTML = '';
     
-    if (uniqueFires.length === 0) {
+    if (visibleFires.length === 0) {
         const noFiresMessage = document.createElement('div');
         noFiresMessage.className = 'no-fires-message';
         noFiresMessage.innerHTML = 'No fires detected in the current view.';
@@ -783,25 +892,10 @@ function updateFireList() {
         return;
     }
     
-    // Sort fires by date (most recent first)
-    uniqueFires.sort((a, b) => {
-        const dateA = a.properties.date ? new Date(a.properties.date) : new Date(0);
-        const dateB = b.properties.date ? new Date(b.properties.date) : new Date(0);
-        return dateB - dateA;
-    });
-    
     // Create fire list items
-    uniqueFires.forEach(fire => {
+    visibleFires.forEach(fire => {
         const fireItem = document.createElement('div');
         fireItem.className = 'fire-item';
-        
-        // Format location name
-        const locationName = fire.properties.country;
-        
-        // Skip if no valid country
-        if (!locationName) {
-            return;
-        }
         
         // Format date
         let dateStr = 'Unknown Date';
@@ -820,26 +914,23 @@ function updateFireList() {
         const timeStr = fire.properties.time ? ` at ${fire.properties.time}` : '';
         
         fireItem.innerHTML = `
-            <h3>${locationName}</h3>
+            <h3>${fire.properties.locationName}</h3>
             <p>Detected: ${dateStr}${timeStr}</p>
             <p>Coordinates: ${fire.geometry.coordinates[1].toFixed(4)}, ${fire.geometry.coordinates[0].toFixed(4)}</p>
         `;
         
         // Add click event to fly to fire location and show popup
         fireItem.addEventListener('click', () => {
-            // Remove any existing popups
             const existingPopups = document.getElementsByClassName('mapboxgl-popup');
             if (existingPopups.length) {
                 Array.from(existingPopups).forEach(popup => popup.remove());
             }
 
-            // Fly to the fire location
             map.flyTo({
                 center: fire.geometry.coordinates,
                 zoom: map.getZoom()
             });
             
-            // Create and show popup
             new mapboxgl.Popup()
                 .setLngLat(fire.geometry.coordinates)
                 .setHTML(fire.properties.popupContent)
