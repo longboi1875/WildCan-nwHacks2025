@@ -4,6 +4,8 @@ As a team of first-year students at the University of British Columbia, hacking 
 
 WildCan is a real-time wildfire monitoring application that provides up-to-date information about active wildfires across the globe. Built with modern web technologies, it offers an intuitive interface for tracking and analyzing wildfire data.
 
+Check out the website at https://longboi1875.github.io/WildCan-nwHacks2025/
+
 ## Features
 
 - **Real-Time Fire Detection**: Monitors active wildfires using NASA FIRMS satellite data
